@@ -33,4 +33,8 @@ simple-calculator/
 ├── script.js        # JavaScript logic
 └── README.md        # Project documentation
 
+## 📜 License
+
+This project is licensed under the MIT License. See the LICENSE file for more details.
+
 
