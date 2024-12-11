@@ -3,6 +3,20 @@ let screen = document.querySelector(".screen");
 let operand = document.querySelector(".operand");
 let final = document.querySelector(".result");
 
+window.addEventListener("keydown" ,(ev)=>
+{
+    let keyWord ;
+    let input = document.querySelector(`div[data-size="${ev.key}"]`) ; 
+    if(ev.key == "enter")
+    {
+        keyWord = enter ; 
+    }
+    else
+    {
+        keyWord = input.dataset.size;
+    }
+    calculateKeywords(keyWord) ;
+})
 buttons.forEach((value) => value.addEventListener("click", calculate));
 
 let currentValue = "";
@@ -39,25 +53,35 @@ function finalanswer(prev, operator, curr) {
 }
 
 function solveEnter() {
+    if(total!= "")
+        {
+            operand.innerHTML = total ; 
+            final.innerHTML = "";
+        }
     let ans = 0;
     operand.innerHTML = "";
     let finalValue = "";
     let operator = "";
-    let previousValue = 0;
+    let previousValue = null;
 
     for (let value of total) {
-        if (!isNaN(value) || value === ".") {
+        if (!isNaN(value) || value === "." || value === "-" && finalValue === "") {
             finalValue += value;
-        } else {
-            if (previousValue === 0) {
+        } 
+        else if (value === "+" && finalValue === "") {
+            // Ignore leading "+"
+            continue;
+        }
+        else {
+            if(previousValue == null) {
                 previousValue = parseFloat(finalValue);
                 operator = value;
-                finalValue = "";
-            } else {
+            }
+            else{
                 ans = finalanswer(previousValue, operator, finalValue);
                 previousValue = ans;
-                finalValue = "";
             }
+            finalValue = "";
         }
     }
     if (finalValue !== "") {
@@ -66,13 +90,22 @@ function solveEnter() {
 
     console.log(ans);
     final.textContent = ans;
+    final.setAttribute("style" , "font-size : 35px ; color : black ; ")
     currentValue = ans.toString();
-    total = ""; // Reset for the next calculation
+    total = ans.toString() ; 
+    // Reset for the next calculation
 }
 
-function calculate() {
-    let inputValue = this.dataset.size;
 
+
+function calculate() {
+    let inputValue = this.dataset.size  ;
+    final.setAttribute("style" , "font-size : 20px ; color : rgb(56, 55, 55) ; ")
+    if(total!= "")
+    {
+        operand.innerHTML = total ; 
+        final.innerHTML = "";
+    }
     if (!isNaN(inputValue) || inputValue === ".") {
         currentValue += inputValue;
         total += inputValue;
@@ -86,7 +119,8 @@ function calculate() {
         total += inputValue;
         operand.innerHTML = total;
         final.innerHTML = "";
-    } else if (inputValue === "enter") {
+
+    } else if (inputValue === "Enter") {
         solveEnter();
     }
 
@@ -109,4 +143,94 @@ function calculate() {
             operand.innerHTML = total; 
         }  
     }
+
+    else if (inputValue === "toggle") {
+        if (currentValue) {
+            if (currentValue.startsWith("-")) {
+                // If it's negative, make it positive
+                currentValue = currentValue.slice(1);
+            } else {
+                // If it's positive, make it negative
+                currentValue = "-" + currentValue;
+            }
+            total = total.slice(0, -currentValue.length) + currentValue; // Update total
+            final.innerHTML = currentValue;
+        } else if (total === "") {
+            // If no input yet, start with -0
+            currentValue = "-";
+            total = "-";
+            final.innerHTML = currentValue;
+        }
+    }
+    
+
+}
+
+
+function calculateKeywords(keyword) {
+    let inputValue =  keyword ;
+    final.setAttribute("style" , "font-size : 20px ; color : rgb(56, 55, 55) ; ")
+    if(total!= "")
+    {
+        operand.innerHTML = total ; 
+        final.innerHTML = "";
+    }
+    if (!isNaN(inputValue) || inputValue === ".") {
+        currentValue += inputValue;
+        total += inputValue;
+        final.textContent = currentValue;
+    } else if (["+", "-", "*", "/", "%"].includes(inputValue)) {
+        if (currentValue !== "") {
+            previousValue = Number(currentValue);
+            currentValue = "";
+        }
+        operator = inputValue;
+        total += inputValue;
+        operand.innerHTML = total;
+        final.innerHTML = "";
+
+    } else if (inputValue === "Enter") {
+        solveEnter();
+    }
+
+    else if (inputValue == "all-clear")
+    {
+        currentValue = "" ; 
+        total = "" ; 
+        operator = "" ; 
+        final.innerHTML = "" ; 
+        operand.innerHTML = "" ; 
+
+    }
+    else if (inputValue === "clear") {
+        if (currentValue.length > 0) {
+            currentValue = currentValue.slice(0, -1); 
+            total = total.slice(0, -1);            
+            final.textContent = currentValue;      
+        } else if (total.length > 0) {
+            total = total.slice(0, -1);            // Remove last character from total
+            operand.innerHTML = total; 
+        }  
+    }
+
+    else if (inputValue === "toggle") {
+        if (currentValue) {
+            if (currentValue.startsWith("-")) {
+                // If it's negative, make it positive
+                currentValue = currentValue.slice(1);
+            } else {
+                // If it's positive, make it negative
+                currentValue = "-" + currentValue;
+            }
+            total = total.slice(0, -currentValue.length) + currentValue; // Update total
+            final.innerHTML = currentValue;
+        } else if (total === "") {
+            // If no input yet, start with -0
+            currentValue = "-";
+            total = "-";
+            final.innerHTML = currentValue;
+        }
+    }
+    
+
 }
